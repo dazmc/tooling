@@ -5,8 +5,7 @@
 https://www.murillodigital.com/tech_talk/flux2_crossplane/#bootstrapping-flux-in-our-cluster
 https://toolkit.fluxcd.io/get-started/
 
-curl -s https://toolkit.fluxcd.io/install.sh | sudo bash
-
+curl -s https://fluxcd.io/install.sh | sudo bash
 
 flux is installed in a GitOps way and its manifest will be pushed to the repository, so you will also need a GitHub account and a personal access token that can create repositories (check all permissions under repo) to enable Flux do this.
 
