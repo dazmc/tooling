@@ -1,0 +1,13 @@
+TXTDIR=powerpoint
+MDS=$(wildcard *.md)
+PPTX=$(patsubst %.md,$(TXTDIR)/%.pptx, $(MDS))
+
+.PHONY : all
+
+all : $(PPTX)
+
+$(TXTDIR) :
+	mkdir $(TXTDIR)
+
+$(TXTDIR)/%.pptx : %.md $(TXTDIR)
+	pandoc -f markdown -t pptx -s $< -o $@

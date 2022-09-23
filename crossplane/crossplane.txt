@@ -1,0 +1,98 @@
+###https://doc.crds.dev/ <-- for layout
+###https://github.com/crossplane/provider-aws/tree/master/examples
+# crossplane-gitops
+
+https://www.murillodigital.com/tech_talk/flux2_crossplane/#bootstrapping-flux-in-our-cluster
+https://toolkit.fluxcd.io/get-started/
+
+#### install kubectl-crossplane plugin
+# get the raw version of the file in the root of github.com/crossplane repo
+wget https://raw.githubusercontent.com/crossplane/crossplane/e5552514c60660e02451aa036d467aed35626adb/install.sh
+chmod 700
+./install.sh
+sudo mv kubectl-crossplane /usr/local/bin
+
+######install crossplane GITOPS way
+
+###flux bootstrap seetup to watch ./clusters/management see kubectl describe ks flux-system -n flux-system or clusters/management/flux-system/gotk-sync.yaml
+
+#setup namespace
+kubectl create ns crossplane-system --dry-run=client -o yaml > crossplane-gitops/clusters/management/crossplane-system/namespace.yaml
+
+#setup flux for HELM crossplane repo and chart so we can see what the format is
+helm repo add crossplane-stable https://charts.crossplane.io/stable
+helm repo list
+helm repo update
+helm search repo crossplane --versions
+helm search repo crossplane -o yaml
+
+# use the format to create flux files
+flux create source helm crossplane --url=https:crossplane-stable --namespace=crossplane-system --export
+flux create hr crossplane --namespace=crossplane-system --chart=crossplane --chart-version=1.5.1 --source=HelmRepository/crossplane.crossplane-system --interval=2m0s --export
+
+# setup provider for aws in flux
+echo "apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws
+spec:
+  package: crossplane/provider-aws:master" > crossplane-gitops/clusters/management/crossplane-system/ProviderAWS.yaml
+
+# setup providerconfig for aws in flux - note use of provider name and the 'creds' key for secret
+echo "apiVersion: aws.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  #name: default
+  name: aws-provider-config
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      name: aws-creds
+      key: creds" > crossplane-gitops/clusters/management/crossplane-system/ProviderConfigAWS.yaml
+
+#setup aws creds in flux as a sealed secret (sealed secrets needs to be installed and kubeseal) note 'creds' is the key
+more .aws/config
+more .aws/credentials
+aws configure list
+aws_profile="${aws_profile:-default}"
+AWS_CREDS_BASE64=$(echo -e "[default]\naws_access_key_id = $(aws configure get aws_access_key_id --profile $aws_profile)\naws_secret_access_key = $(aws configure get aws_secret_access_key --profile $aws_profile)" | base64  | tr -d "\n")
+echo $AWS_CREDS_BASE64| base64 -d
+echo $AWS_CREDS_BASE64
+ echo "apiVersion: v1
+data:
+  creds: $AWS_CREDS_BASE64
+kind: Secret
+metadata:
+  name: aws-creds
+  namespace: crossplane-system
+type: Opaque" | kubeseal -o yaml > crossplane-gitops/clusters/management/crossplane-system/aws-creds.yaml
+
+#provision managed resource note the providerconfigref matches the provider config name
+#create directory provision-aws/
+echo "apiVersion: database.aws.crossplane.io/v1beta1
+kind: RDSInstance
+metadata:
+  name: rdspostgresql
+spec:
+  providerConfigRef:
+    name: aws-provider-config
+  forProvider:
+    region: us-east-1
+    dbInstanceClass: db.t2.small
+    masterUsername: masteruser
+    allocatedStorage: 20
+    engine: postgres
+    engineVersion: "12"
+    skipFinalSnapshotBeforeDeletion: true
+  writeConnectionSecretToRef:
+    namespace: crossplane-system
+    name: aws-rdspostgresql-conn" > crossplane-gitops/clusters/management/crossplane-system/provision-aws/aws-rds-managed.yaml
+
+
+git status
+git add .
+git commit -m "crossplane in GitOps"
+git status
+git push

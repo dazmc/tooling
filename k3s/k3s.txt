@@ -1,0 +1,9 @@
+###https://doc.crds.dev/ <-- for layout
+###https://github.com/crossplane/provider-aws/tree/master/examples
+# crossplane-gitops
+
+https://www.murillodigital.com/tech_talk/flux2_crossplane/#bootstrapping-flux-in-our-cluster
+https://toolkit.fluxcd.io/get-started/
+
+curl -sfL https://get.k3s.io | sh -
+cp /etc/rancher/k3s/k3s.yaml .kube/config <-- needed because flux looks here whilst k3s put it somewhere else

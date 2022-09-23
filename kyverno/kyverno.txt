@@ -1,0 +1,15 @@
+  flux create source helm kyverno --namespace=kyverno --url=https://kyverno.github.io/kyverno --export
+  flux create source helm kyverno --namespace=kyverno --url=https://kyverno.github.io/kyverno --export > HelmRepository.yaml
+
+  flux create hr kyverno --namespace=kyverno --chart=kyverno --source=HelmRepository/kyverno.kyverno --export
+  flux create hr kyverno --namespace=kyverno --chart=kyverno --source=HelmRepository/kyverno.kyverno --export > HelmRelease.yaml
+# alternative method using yaml
+#  wget https://raw.githubusercontent.com/kyverno/kyverno/main/config/install.yaml
+
+# create the namespace
+  kubectl create ns kyverno --dry-run=client -o yaml > namespace.yaml
+
+git add .
+git commit -m "adding in kyverno"
+git push
+

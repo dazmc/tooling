@@ -1,0 +1,20 @@
+TXTDIR=revealjs
+MDS=$(wildcard *.md)
+PPTX=$(patsubst %.md,$(TXTDIR)/%.html, $(MDS))
+
+.PHONY : all
+
+all : $(PPTX)
+
+$(TXTDIR) :
+	mkdir $(TXTDIR)
+
+$(TXTDIR)/%.html : %.md $(TXTDIR)
+#	slidy
+	#pandoc -s --webtex -i -t slidy -s $< -o $@
+	#impress
+	#pandoc -V impress-url=impress.js -s $< -t html5 --section-divs -o $@
+	# revealjs
+	pandoc -s --mathjax -i -t revealjs $< -o $@ -V theme=sky --include-in-header=slides.css
+	# revealjs with custom fontsize
+	#pandoc -s --mathjax -i -t revealjs $< -o $@ -V theme=sky -V transition=cube --include-in-header=slides.css

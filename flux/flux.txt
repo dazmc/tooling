@@ -1,0 +1,75 @@
+###https://doc.crds.dev/ <-- for layout
+###https://github.com/crossplane/provider-aws/tree/master/examples
+# crossplane-gitops
+
+https://www.murillodigital.com/tech_talk/flux2_crossplane/#bootstrapping-flux-in-our-cluster
+https://toolkit.fluxcd.io/get-started/
+
+curl -s https://toolkit.fluxcd.io/install.sh | sudo bash
+
+
+flux is installed in a GitOps way and its manifest will be pushed to the repository, so you will also need a GitHub account and a personal access token that can create repositories (check all permissions under repo) to enable Flux do this.
+
+vi github-token
+source github-token
+
+flux check --pre
+flux bootstrap github --owner=$GITHUB_USER --repository=crossplane-gitops --branch=main --path=./clusters/management --personal --read-write-key --components-extra=image-reflector-controller,image-automation-controller
+#check status
+flux check
+#flux bootstrap github --owner=$GITHUB_USER --repository=crossplane-gitops --branch=main --path=./clusters/management --personal
+
+git config --global user.email "unixdaddy@gmail.com"
+git config --global user.name "unixdaddy"
+
+git add .
+git commit -m "blah"
+git push
+
+USEFUL COMMANDS
+flux get kustomizations
+flux reconcile source git flux-system
+kubectl api-resources | grep -i flux
+kubectl get ks -n flux-system
+kubectl describe ks -n flux-system
+kubectl get gitrepositories -n flux-system
+kubectl get alerts.notification.toolkit.fluxcd.io -n flux-system
+kubectl explain alerts.spec
+
+
+### other stuff
+$ vim flux-token.txt
+$ export GITHUB_USERNAME=unixdaddy
+$ export CLUSTER_NAME=mgmt 
+$ export GITHUB_TOKEN=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 
+$ export GITHUB_REPO=fluxcd-mgmt 
+$ flux bootstrap github --owner=unixdaddy --repository=fluxcd-mgmt --path=k8s-infra/clusters/mgmt/workloads --personal --branch=master 
+
+### more
+# fluxcd-mgmt
+flux -v
+export GITHUB_USERNAME=unixdaddy
+export CLUSTER_NAME=mgmt
+export GITHUB_TOKEN=XXXX
+export GITHUB_REPO=fluxcd-mgmt
+
+flux bootstrap github --owner=unixdaddy --repository=fluxcd-mgmt --path=k8s-infra/clusters/mgmt/workloads --personal --branch=master
+flux get all
+
+git clone https://github.com/unixdaddy/fluxcd-mgmt.git
+
+flux create source helm nginx --url=https://charts.bitnami.com/bitnami --interval=1m --export > Helmrepository.yaml
+flux create helmrelease nginx --release-name=nginx --source=HelmRepository/nginx --chart=nginx --chart-version=8.8.1 --namespace=nginx --interval=5m --export > HelmRelease.yaml
+git status
+git add .
+git commit -m "NGINX deploy"
+git config --global user.email "XX"
+git config --global user.name "XXX"
+git commit -m "NGINX deploy"
+git push
+flux get all
+flux logs
+flux reconcile helmrelease -n nginx nginx
+flux get kustomization -n nginx
+watch flux get helmrelease -n nginx
+flux logs -n nginx

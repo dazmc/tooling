@@ -1,0 +1,30 @@
+curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+chmod 700 get-helm.sh
+./get-helm.sh
+
+# artifactHUB is there by default so you can search for repos you might want to add
+helm search hub crossplane 
+helm search hub crossplane -o yaml
+ #get the repository URL
+  repository:
+    name: crossplane
+    url: https://charts.crossplane.io/master/
+
+helm repo add crossplane-master https://charts.crossplane.io/master/
+helm repo update
+
+# list charts in repo
+helm search repo cilium --versions
+helm search repo -l
+helm search repo blah
+helm search repo crossplane-master --devel
+# show values
+helm show values crossplane-master/crossplane > values.yaml # edit the values file or set them on cmdline
+
+helm install my-prom prometheus-community/kube-prometheus-stack –n monitoring #–f /path/to/values_files -n monitoring
+
+helm install crossplane --namespace crossplane-system crossplane-master/crossplane --create-namespace --version 0.11.0-rc.100.gbc5d311 --devel
+
+# can set values on the cmdline
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=test --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer

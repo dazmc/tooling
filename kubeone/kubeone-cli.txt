@@ -1,0 +1,13 @@
+# kubeone cli
+curl -sfL https://get.kubeone.io | sh
+
+# need terraform
+curl -LO https://releases.hashicorp.com/terraform/1.1.3/terraform_1.1.3_linux_amd64.zip
+unzip terraform_1.1.3_linux_amd64.zip
+sudo mv terraform /usr/local/bin
+
+# Variables
+ARM_CLIENT_ID	Azure ClientID
+ARM_CLIENT_SECRET	Azure Client secret
+ARM_TENANT_ID	Azure TenantID
+ARM_SUBSCRIPTION_ID	Azure SubscriptionID

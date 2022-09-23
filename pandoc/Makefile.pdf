@@ -1,0 +1,14 @@
+TXTDIR=pdf
+MDS=$(wildcard *.md)
+PPTX=$(patsubst %.md,$(TXTDIR)/%.pdf, $(MDS))
+
+.PHONY : all
+
+all : $(PPTX)
+
+$(TXTDIR) :
+	mkdir $(TXTDIR)
+
+$(TXTDIR)/%.pdf : %.md $(TXTDIR)
+#	pandoc -f markdown -t pptx -s $< -o $@
+	pandoc -f gfm --toc -s $< -o $@ --variable fontsize=10pt --variable "geometry=margin=0.5in"

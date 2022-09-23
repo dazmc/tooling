@@ -1,0 +1,4 @@
+https://github.com/edgelesssys/constellation
+wget https://github.com/edgelesssys/constellation/releases/download/v2.0.0/constellation-linux-amd64
+chmod u+x constellation-linux-amd64
+sudo mv constellation-linux-amd64 /usr/local/bin/constellation

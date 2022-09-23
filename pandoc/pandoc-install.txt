@@ -1,0 +1,35 @@
+
+https://pandoc.org/getting-started.html
+https://pandoc.org/installing.html#linux
+https://pandoc.org/MANUAL.html
+
+DEMOS - https://pandoc.org/demos.html
+
+Install link - https://github.com/jgm/pandoc/releases/latest
+
+
+1. Install Methods
+
+# on debian can download the deb file
+wget <latest deb link - see install link above>
+sudo apt install ./pandoc-2.18-1-amd64.deb
+
+# on all LINUX machines can download tar.gz file - PREFERED METHOD
+wget <latest tar.gz for amd64 link - see install link above>
+sudo tar xzvf pandoc-2.17.1.1-linux-amd64.tar.gz --strip-components 1 -C /usr/local/
+
+2. Additional steps
+# UBUNTU had to add this to order to generate pdf from markdown
+sudo apt-get update
+sudo apt install texlive-latex-recommended
+
+# OEL/RHEL Had to add these (not sure which ones worked/needed) to run pandoc (run it and see where it fails)
+sudo dnf install latex
+sudo dnf install texlive
+sudo dnf install texlive-translator
+sudo dnf install texlive-xetex
+
+# in order to use pandoc in the containers-pathway repo i had to install
+# rsvg-convert (and associcated pacakges) as the images are in svg format
+# need to be converted so that they can be used in an pdf
+sudo dnf install librsvg2-tools

@@ -1,0 +1,9 @@
+https://github.com/nbedos/termtosvg
+
+python3 -m venv termtosvg
+source termtosvg/bin/activate
+pip install --upgrade pip
+pip install termtosvg
+deactive # when finshed
+
+termtosvg -t window_frame_js # to start a recording

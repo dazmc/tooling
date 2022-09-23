@@ -1,0 +1,4 @@
+https://github.com/awslabs/clencli
+wget https://github.com/awslabs/clencli/releases/download/0.3.6/clencli-linux-amd64
+chmod 755 clencli-linux-amd64
+sudo mv clencli-linux-amd64 /usr/local/bin/clencli

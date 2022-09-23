@@ -1,0 +1,57 @@
+# pandoc
+
+Enables us to generate pdf/html and other file types form markdown files
+
+- Install - see the pandoc-install.txt
+
+## PDF
+
+1. PDF - make sure it is rename to Makefile in the process
+   cp Makefile.pdf /to/target/directory/with/markdowns/Makefile
+2. change to the directory containing the markdowns
+   cd /to/target/directory/with/markdowns
+3. run make - this will create a directory called pdf which contains pdf versions of your markdown
+   make
+
+NOTE: if you see this error edit the mark down find the list which is nested and correct
+Error producing PDF.
+! LaTeX Error: Too deeply nested.
+
+i.e.
+
+- this
+  - doesn't
+    - work
+- this
+  - works
+  - fine
+
+## POWERPOINT
+
+1. Powerpoint - make sure it is rename to Makefile in the process
+   cp Makefile.powerpoint /to/target/directory/with/markdowns/Makefile
+2. change to the directory containing the markdowns
+   cd /to/target/directory/with/markdowns
+3. run make - this will create a directory called powerpoint which contains pdf versions of your markdown
+   make
+
+NOTE: when you open in powerpoint some text boxes can be too big (flows off the slide) select the box and move
+it will then auto resize to fit the slide
+NOTE: if there is still too much text on a slide (text is cramped and small) in powerpoint then in your markdown
+seperate the text with '---', pandoc will treat this as a new slide when converting to powerpoint
+
+## HTML5 Slides
+
+1. revealjs - make sure it is rename to Makefile in the process and copy slides.css
+   cp Makefile.revealjs /to/target/directory/with/markdowns/Makefile
+   cp slides.css /to/target/directory/with/markdowns/
+2. change to the directory containing the markdowns
+   cd /to/target/directory/with/markdowns
+3. run make - this will create a directory called revealjs which contains html5 slides (chrome) versions of your markdown
+   make
+
+NOTE: The Makefile can generate different formats, colours - uncomment the one you want to try
+the one presently used (revealjs) looks best for me. There are variations for revealjs and also slidy
+NOTE: in chrome or edge go full screen (F11 for me) when presenting the slides
+NOTE: some text doesn't fit on the screen - it overflows - in your markdown seperate the text with '---',
+pandoc will treat this as a new slide when converting to revealjs

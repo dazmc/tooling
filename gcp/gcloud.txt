@@ -1,0 +1,41 @@
+https://cloud.google.com/sdk/docs/install#linux
+
+wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-403.0.0-linux-x86_64.tar.gz
+tar zxf google-cloud-cli-403.0.0-linux-x86_64.tar.gz
+./google-cloud-sdk/install.sh
+./google-cloud-sdk/install.sh --help
+./google-cloud-sdk/bin/gcloud init
+gcloud components list
+gcloud components install [COMPONENT-ID]
+gcloud components install kubectl
+gcloud components update
+
+
+gcloud config set project $(gcloud projects list --filter="project_id:playground*" --format="value(project_id)") 
+gcloud compute regions list 
+gcloud config configurations list 
+gcloud config set compute/region europe-west2 
+gcloud config set compute/zone europe-west2-a 
+gcloud projects list 
+
+gcloud config get-value compute/zone 
+gcloud compute zones list 
+
+gcloud auth list 
+gcloud config set account cloud_user_p_f65a90ce@linuxacademygclabs.com 
+gcloud config set account $(gcloud auth list --filter="account:cloud*"  --format="value(account)") 
+gcloud services list –available 
+
+
+
+gcloud services enable container.googleapis.com 
+
+gcloud container clusters create test-alpha --enable-kubernetes-alpha --no-enable-autorepair --no-enable-autoupgrade 
+
+gcloud container clusters get-credentials test-alpha 
+
+gcloud container clusters create test 
+
+gcloud container clusters create "test" --zone "us-east1-c"  --cluster-version "1.23.5-gke.200" --release-channel "rapid" --machine-type "e2-medium"  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver  
+
+sudo apt install tree 
