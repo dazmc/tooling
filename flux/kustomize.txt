@@ -1,0 +1,5 @@
+curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+
+then can do 
+
+kustomize create --autodetect <-- IMPORTANT TO CREATE THE KUSTOMIZATION.YAML FROM CURRENT DIR

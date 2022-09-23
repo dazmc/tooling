@@ -9,6 +9,9 @@ curl -s https://fluxcd.io/install.sh | sudo bash
 
 flux is installed in a GitOps way and its manifest will be pushed to the repository, so you will also need a GitHub account and a personal access token that can create repositories (check all permissions under repo) to enable Flux do this.
 
+https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
+# checking all permissions under repo.
+
 vi github-token
 source github-token
 
@@ -35,6 +38,7 @@ kubectl get gitrepositories -n flux-system
 kubectl get alerts.notification.toolkit.fluxcd.io -n flux-system
 kubectl explain alerts.spec
 
+kustomize create --autodetect <-- IMPORTANT TO CREATE THE KUSTOMIZATION.YAML FROM CURRENT DIR
 
 ### other stuff
 $ vim flux-token.txt

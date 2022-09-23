@@ -1,1 +1,3 @@
 curl -sL https://raw.githubusercontent.com/crossplane/crossplane/master/install.sh | CHANNEL=master sh
+
+or run crossplane-install.sh
