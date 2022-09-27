@@ -1,0 +1,55 @@
+# login without a browser
+#To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code XXXXXX to authenticate. 
+az login  --use-device-code 
+
+# RED HAT VM
+
+az vm image list --output table 
+az vm image list --offer RHEL--all --output table 
+az vm image list-offers --location eastus --publisher RedHat --output table 
+az vm image list-skus --location eastus --publisher RedHat--offer RHEL --output table 
+
+az vm image list \ 
+    --location eastus \ 
+    --publisher RedHat \ 
+    --offer RHEL \ 
+    --sku 7_9 \ 
+    --all --output table 
+ 
+az vm image show --location eastus --urn RedHat:RHEL:7_9:7.9.2022032201 
+
+# using cloud-init with in custom-data - defender.yml contains cloud-init contents 
+az vm create -n MyDefender -g 1-b424faa3-playground-sandbox --image RedHat:RHEL:7_9:7.9.2022032201 --admin-username azureuser --generate-ssh-keys --custom-data defender.yml 
+
+# using existing public key and basic public-ip-sku (basic or standard) 
+az vm create -n MyDefender -g 1-7fdd617b-playground-sandbox --image RedHat:RHEL:7_9:7.9.2022032201 --admin-username azureuser --ssh-key-values ~/.ssh/id_rsa.pub --public-ip-sku basic 
+ 
+# connect using the key 
+az ssh vm --name MyDefender -g 1-7fdd617b-playground-sandbox --local-user azureuser 
+
+# create RHEL8 VM with an existing key
+az vm create -n MyDefender1 -g 1-6e18cf80-playground-sandbox --image RedHat:RHEL:8_6:8.6.2022070801 --admin-username azureuser --ssh-key-values ~/.ssh/id_rsa.pub --public-ip-sku standard --custom-data cloud-ansible-basic.yml 
+# Ubuntu VM
+
+az vm image list-offers --location westus --output table --publisher Canonical 
+
+az vm image list-skus --location westus --output table --publisher Canonical --offer 0001-com-ubuntu-server-jammy-daily 
+
+az vm image list-skus --location westus --output table --publisher Canonical --offer UbuntuServer 
+
+az vm image list-skus --location westus --output table --publisher Canonical --offer 0001-com-ubuntu-server-kinetic-daily 
+ 
+az vm image list --location eastus --publisher Canonical --offer 0001-com-ubuntu-server-kinetic-daily --sku 22_10-daily-gen2 --all --output table 
+
+az vm create -n MyUbuntu -g 1-668dd69e-playground-sandbox --image Canonical:0001-com-ubuntu-server-kinetic-daily:22_10-daily-gen2:22.10.202209060 --admin-username azureuser --ssh-key-values ~/.ssh/id_rsa.pub --public-ip-sku standard 
+
+az ssh vm --name MyUbuntu -g 1-668dd69e-playground-sandbox --local-user azureuser 
+
+az vm create -n MyUbuntu1 -g 1-668dd69e-playground-sandbox --image Canonical:0001-com-ubuntu-server-kinetic-daily:22_10-daily-gen2:22.10.202209060 --admin-username azureuser --ssh-key-values ~/.ssh/id_rsa.pub --public-ip-sku standard --custom-data cloud-ansible.yml 
+az account show
+
+# aks
+az aks get-versions --location eastus | grep Version
+# create a cluster - can also use BYO CNI
+az aks create --resource-group 1-9b48f229-playground-sandbox --name flux --ssh-key-value ~/.ssh/id_rsa.pub --kubernetes-version 1.24.3 #--network-plugin none
+

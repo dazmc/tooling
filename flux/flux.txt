@@ -23,6 +23,10 @@ flux check
 
 git config --global user.email "unixdaddy@gmail.com"
 git config --global user.name "unixdaddy"
+## if using https then setup credential.helper so it doesn't keep prompting for token for the specified time
+git config --global credential.helper "cache --timeout=86400"
+## to setup permanently in a file ~/.github-credentials
+git config credential.helper store
 
 git add .
 git commit -m "blah"
