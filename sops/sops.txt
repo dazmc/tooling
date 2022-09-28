@@ -1,0 +1,72 @@
+https://github.com/mozilla/sops/releases/download/v3.7.1/sops-3.7.1-1.x86_64.rpm 
+
+https://github.com/mozilla/sops/releases/download/v3.7.1/sops_3.7.1_amd64.deb 
+
+https://github.com/mozilla/sops/releases/download/v3.7.1/sops-v3.7.1.linux <-- executable 
+
+Gnugp needs to be installed along with sops  
+
+export KEY_NAME="flux" 
+
+export KEY_COMMENT="flux secrets" 
+
+gpg --batch --full-generate-key <<EOF 
+%no-protection 
+Key-Type: 1 
+Key-Length: 4096 
+Subkey-Type: 1 
+Subkey-Length: 4096 
+Expire-Date: 0 
+Name-Comment: ${KEY_COMMENT} 
+Name-Real: ${KEY_NAME} 
+> EOF 
+
+gpg --list-secret-keys "${KEY_NAME}" 
+sec   rsa4096 2021-09-21 [SCEA] 
+      5A6AE446B329D974D3A2C204BD94DFD6C0ECAF14 
+export KEY_FP=5A6AE446B329D974D3A2C204BD94DFD6C0ECAF14 
+
+gpg --export-secret-keys --armor "${KEY_FP}" |kubectl create secret generic sops-gpg \--namespace=flux-system \--from-file=sops.asc=/dev/stdin 
+
+#Cheating put it private+public into a file (BAD) to load it via flux??!! 
+
+gpg --export-secret-keys --armor "${KEY_FP}" | kubectl create secret generic sops-gpg --namespace=flux-system --from-file=sops.asc=/dev/stdin --dry-run=client -o yaml > sops.yaml 
+
+gpg --delete-secret-keys "${KEY_FP}" <-- delete the private key from gpg ring (don’t bother for testing) 
+
+#Cluster setup 
+# where by gpg encrypted secrets are 
+
+flux create source git my-secrets --url=https://github.com/my-org/my-secrets --branch=main --export > gitrepo-secrets-example.yaml (didn’t use this I used the flux-system git repository as the place my secrets was in and alter source in next command) 
+
+#Decrypt them  
+
+flux create kustomization my-secrets --source=flux-system --path=./k8s-infra/clusters/mgmt/workloads/sops/secrets --prune=true --interval=10m --decryption-provider=sops --validation client --decryption-secret=sops-gpg --export > kustomize-secrets-example.yaml 
+
+#Put the public key into git so that sops can be use to encrypt files 
+
+gpg --export --armor "${KEY_FP}" > .sops.pub.asc (hidden file .) 
+gpg --import ./clusters/cluster0/.sops.pub.asc <-- team members can then import it 
+
+Create a sops config file – all directories below it will use it 
+
+cat <<EOF> .sops.yaml 
+creation_rules: 
+  - path_regex: .*.yaml 
+    encrypted_regex: ^(data|stringData)$ 
+    pgp: ${KEY_FP} 
+EOF 
+
+#Create and encrypt a secret in ./k8s-infra/clusters/mgmt/workloads/sops/secrets 
+
+kubectl -n default create secret generic basic-auth --from-literal=user=admin --from-literal=password=change-me --dry-run=client -o yaml > basic-auth.yaml 
+
+sops --encrypt --in-place basic-auth.yaml 
+
+Create kustomisation in ./k8s-infra/clusters/mgmt/workloads/sops/secrets 
+
+kustomize create --autodetect . 
+
+git add
+git commit "message"
+git push
