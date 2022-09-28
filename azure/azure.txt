@@ -2,6 +2,13 @@
 #To sign in, use a web browser to open the page https://microsoft.com/devicelogin and enter the code XXXXXX to authenticate. 
 az login  --use-device-code 
 
+# found out your resource groups
+az group list
+
+# filtering output
+az group list --query "[0].{location:location}"
+az account show --query "{tenantId:tenantId,subscriptionid:id}"
+
 # RED HAT VM
 
 az vm image list --output table 
