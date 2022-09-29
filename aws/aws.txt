@@ -1,0 +1,7 @@
+aws configure list
+aws configure
+AWS Access Key ID [None]: AKIAWQP4UL36IXPNCLEG
+AWS Secret Access Key [None]: 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
+Default region name [None]: us-east-1
+Default output format [None]:
+aws s3 ls

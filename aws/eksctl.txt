@@ -1,0 +1,43 @@
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp 
+
+sudo mv /tmp/eksctl /usr/local/bin
+
+
+#create the cluster 
+
+eksctl create cluster --name test --nodegroup-name primary --zones=us-east-1a,us-east-1b,us-east-1c <-- failed in the cloudformation scren it says “You are not authorized to launch instances with this launch template.” might be due to ACG – not sure 
+
+#trying with a smaller instance type perhaps... 
+
+eksctl create cluster --managed --name test --region us-east-1 --version 1.21 --nodegroup-name primary --zones=us-east-1a,us-east-1d --instance-types=t3.small --dry-run > config.yaml <-- NOTE Dry-run 
+
+eksctl create cluster --config-file config.yaml  <-- this worked 
+
+
+#create and use a keypair in eksctl command 
+
+aws ec2 create-key-pair --key-name eksKeyPair --query 'KeyMaterial' --output text > eksKeyPair.pem 
+
+eksctl create cluster --managed --name test --region us-east-1 --version 1.21 --nodegroup-name primary --zones=us-east-1a,us-east-1d --instance-types=t3.small --ssh-public-key eksKeyPair --with-oidc=true --dry-run > config.yaml 
+
+eksctl create cluster --config-file config.yaml <-- ??? 
+
+#list clusters and update kubeconfig  
+
+aws eks list-clusters 
+
+aws eks list-clusters #--region us-west-2 
+
+aws eks update-kubeconfig --name test --region us-west-2 <-- created in oregon NOT NEEDED as eksctl will update 
+
+Eksctl get clusters 
+
+Eksctl get nodegroup –cluster test 
+
+eksctl utils describe-stacks -c test 
+
+eksctl utils write-kubeconfig –c test 
+
+eksctl utils associate-iam-oidc-provider --config-file=<path> 
+
+eksctl create iamserviceaccount --config-file=<path> 
