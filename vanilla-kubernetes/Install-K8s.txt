@@ -49,7 +49,7 @@ kubectl create -f https://projectcalico.docs.tigera.io/manifests/custom-resource
 
 Run the following on the `workers` (substituting the values as per the output of your kubeadm init command earlier)
 
-sudo kubeadm join 10.140.0.10:6443 --token x3v16x.suyy6558bpwo01ch \
+sudo kubeadm join 10.140.0.10:6443 --token XXXXXXXXX \
     --discovery-token-ca-cert-hash sha256:62858dca9d2f0d08021e64ceeaf22fc9842de5a6ddf950cdb8d4f2d88b191449
 
 # if you can't remember what the token is you can generate a new one on the CONTROLLER node
