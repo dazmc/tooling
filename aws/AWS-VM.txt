@@ -1,0 +1,122 @@
+## AWS - IaaS K8s Cluster - Intro
+
+These are some alternate instructions to use AWS instead of GCP. Please (https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) to follow along with these instructions.
+
+You will need to (https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-creds) first!
+
+The following are `bash` commands
+
+> aws configure
+AWS Access Key ID [None]: 
+AWS Secret Access Key [None]: 
+Default region name [None]: us-west-1
+Default output format [None]: json
+
+## AWS - IaaS k8s Cluster - Networking (1)
+
+Setup some networking
+> Use your own IDs!!!
+
+VPCID=$(aws ec2 create-vpc --cidr-block 10.140.0.0/16 --output json| jq '.Vpc.VpcId' |sed s/\"//g)
+
+ "VpcId": "vpc-0ede9592e3389dec1"
+
+SUBNETID=$(aws ec2 create-subnet --vpc-id $VPCID --cidr-block 10.140.0.0/24 --output json | jq '.Subnet.SubnetId'| sed s/\"//g)
+
+  "SubnetId": "subnet-0ce36383c4fac68a1",
+
+IGW=$(aws ec2 create-internet-gateway --output json |jq '.InternetGateway.InternetGatewayId' |sed s/\"//g)
+
+  "InternetGatewayId": "igw-0b12399c3cf773489"
+
+aws ec2 attach-internet-gateway --vpc-id $VPCID --internet-gateway-id $IGW
+
+## AWS - IaaS k8s Cluster - Networking (2)
+
+Setup some more networking
+
+RTID=$(aws ec2 create-route-table --vpc-id $VPCID |jq '.RouteTable.RouteTableId'| sed s/\"//g)
+
+  "RouteTableId": "rtb-0097b4810fa52559c"
+
+aws ec2 create-route --route-table-id $RTID --destination-cidr-block 0.0.0.0/0 --gateway-id $IGW
+
+aws ec2 associate-route-table  --subnet-id $SUBNETID --route-table-id $RTID
+
+aws ec2 modify-subnet-attribute --subnet-id $SUBNETID --map-public-ip-on-launch
+
+## AWS - IaaS k8s Cluster - SSH Keypair
+
+If you don't have an existing keypair to use, create and *save* a new one.
+
+> Note: this creates a PEM file called `K8sKeyPair.pem` on your machine. You will need this!
+
+aws ec2 create-key-pair --key-name K8sKeyPair --query "KeyMaterial" --output text > K8sKeyPair.pem
+
+If you're connecting from a Windows computer (assumed), refer to the following instructions: (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html) to see how to convert the key file for use with PuTTY.
+
+
+## AWS - IaaS k8s Cluster - Security Groups
+
+Allow SSH directly to your instances, and allow them to talk to each other.
+
+SGID=$(aws ec2 create-security-group --group-name K8SSSH --description "Security group for K8S and SSH access" --vpc-id $VPCID --output json| jq '.GroupId' | sed s/\"//g)
+
+  "GroupId": "sg-01a0febbe0a00c357"
+
+aws ec2 authorize-security-group-ingress --group-id $SGID --protocol tcp --port 22 --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress --group-id $SGID --protocol tcp --port 30000-32768 --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress --group-id $SGID --protocol all --source-group  $SGID
+
+## AWS - Find an AMI
+
+>  **RHEL8:** aws ec2 describe-images --owners 309956199498 --query 'sort_by(Images, &CreationDate)[*].[CreationDate,Name,ImageId,Architecture]' --filters "Name=name,Values=RHEL-8\*" --region us-east-1 --output table
+
+>  **RHEL7:** aws ec2 describe-images --owners 309956199498 --query 'sort_by(Images, &CreationDate)[*].[CreationDate,Name,ImageId,Architecture]' --filters "Name=name,Values=RHEL-7.?*GA*" --region us-east-1 --output table
+
+>  **Ubuntu Useful link:** https://cloud-images.ubuntu.com/locator/ec2/
+
+>  **Ubuntu:** aws ec2 describe-images --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu\*21.10\* --query 'sort_by(Images, &CreationDate)[\*].[CreationDate,Name,ImageId,Architecture]' --output table
+
+>  **Ubuntu:** aws ec2 describe-images --owners 099720109477 --filters Name=name,Values=ubuntu/images/hvm-ssd/ubuntu\*21.10\* --query 'sort_by(Images, &CreationDate)[\*].[CreationDate,Name,ImageId,Architecture]' --output table
+
+## AWS - IaaS K8s Cluster - Controller
+
+Create a controller node. Use your selected keypair, subnet and security group IDs.
+> AMI Image ID is region specific - this is Ubuntu21.10 in us-east1
+
+aws ec2 run-instances --image-id ami-026a2c62c35267e08 --count 1 --instance-type t2.medium  --block-device-mappings DeviceName=/dev/sda1,Ebs={VolumeSize=20} --key-name K8sKeyPair --security-group-ids $SGID --subnet-id $SUBNETID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=controller}]"
+
+## AWS - IaaS K8s Cluster - Workers
+
+Create three worker nodes
+
+for i in 1 2
+    do
+    aws ec2 run-instances --image-id ami-026a2c62c35267e08 --count 1 --instance-type t2.medium --block-device-mappings DeviceName=/dev/sda1,Ebs={VolumeSize=20} --key-name K8sKeyPair --security-group-ids $SGID --subnet-id $SUBNETID --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=worker-$i}]"
+    done
+
+## AWS - IaaS K8s Nodes - Verify
+
+Verify the four VMs have been successfully created.
+
+aws ec2 describe-instances \
+    --filters Name=tag-key,Values=Name \
+    --query "Reservations[*].Instances[*].{ \
+        Instance:InstanceId,PrivateIP:PrivateIpAddress, \
+    PublicIP:PublicIpAddress,State:State.Name, \
+    AZ:Placement.AvailabilityZone, \
+    Name:Tags[?Key=='Name']|[0].Value}" \
+    --output table
+
+## AWS - Connecting to the instances
+
+SSH to the compute instances using Putty as per the AWS instructions and using the Public IPs as seen in the output above. Username is `ubuntu`
+
+ chmod 400 K8sKeyPair.pem
+ ssh -i "K8sKeyPair.pem" ubuntu@<PUBLIC_IP>
+The rest of the Kubernetes installation is more or less the same as for GCP.
+
+You might want to set the hostnames for the nodes, e.g. `controller` but it's a bit of a faff see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-hostname.html
