@@ -1,0 +1,10 @@
+# create a user and attach the secretsmanager policy
+aws iam create-user --user-name external-secrets
+aws iam attach-user-policy --user-name external-secrets --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
+aws iam create-access-key --user-name external-secrets # can create 2 - rerun command
+
+### to delete aws iam user
+aws iam detach-user-policy --user-name external-secrets --policy-arn arn:aws:iam::aws:policy/SecretsManagerReadWrite
+aws iam list-access-keys --user-name external-secrets
+aws iam delete-access-key --user-name external-secrets --access-key-id XXXXXX # run again if more than one
+aws iam delete-user --user-name external-secrets

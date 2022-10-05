@@ -1,0 +1,3 @@
+# create cluster and node roles - read the pages carefully
+#https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html
+#https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html

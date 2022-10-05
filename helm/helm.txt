@@ -1,6 +1,6 @@
 curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
-chmod 700 get-helm.sh
-./get-helm.sh
+chmod 700 get_helm.sh
+./get_helm.sh
 
 # artifactHUB is there by default so you can search for repos you might want to add
 helm search hub crossplane 
