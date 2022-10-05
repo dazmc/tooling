@@ -1,0 +1,11 @@
+1. Pick your platform
+   - GGP - ../gcp/GCP-VM.txt
+   - AWS - ../aws/AWS-VM.txt
+
+2. Pick your CRI
+   - Containerd CRI - Containerd.txt
+   - Docker CRI - Docker.txt - *Docker is Deprecated, last supported Kubernetes release is 1.23*
+   - CRI-O CRI - TBD
+
+
+3. Install Kubernetes - Install-K8s.txt

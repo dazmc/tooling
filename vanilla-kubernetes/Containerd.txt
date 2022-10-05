@@ -1,0 +1,33 @@
+# Containerd CRI
+
+
+## Setup System Settings and Load Kernel Modules on all compute instances
+
+cat << EOF | sudo tee /etc/modules-load.d/cri.conf
+overlay
+br_netfilter
+EOF
+
+sudo modprobe br_netfilter
+sudo modprobe overlay
+
+cat << EOF | sudo tee /etc/sysctl.d/99-kubernetes-cri.conf
+net.bridge.bridge-nf-call-iptables  = 1
+net.ipv4.ip_forward                 = 1
+net.bridge.bridge-nf-call-ip6tables = 1
+EOF
+
+sudo sysctl --system
+
+## Install and Configure containerd on all compute instances
+
+sudo apt-get update
+sudo apt-get install -y containerd
+sudo mkdir -p /etc/containerd
+sudo containerd config default | sudo tee /etc/containerd/config.toml
+sudo sed -i 's/            SystemdCgroup = false/            SystemdCgroup = true/' /etc/containerd/config.toml
+sudo systemctl restart containerd
+
+## Disable Swap
+
+swapoff -av

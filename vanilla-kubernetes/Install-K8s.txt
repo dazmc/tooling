@@ -1,0 +1,79 @@
+# Install Kubernetes
+
+## Install Tooling
+
+sudo apt-get update
+sudo apt-get install -y apt-transport-https curl
+
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+
+sudo apt-get update
+sudo apt-get install -y kubelet=1.23.5-00 kubeadm=1.23.5-00 kubectl=1.23.5-00
+
+sudo apt-mark hold kubelet kubeadm kubectl
+
+## Initialise a new cluster - Control node only
+
+sudo kubeadm init --pod-network-cidr 192.168.0.0/16 --kubernetes-version 1.23.5
+
+> Watch out for the output containing your join command and token
+
+Once the cluster has initialised, run the following as a normal user `(not root)` to configure user access into the cluster
+
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+If it is a single node cluster then remove the taint
+
+kubectl taint node <node>  node-role.kubernetes.io/master:NoSchedule-
+
+
+### Deploy a CNI
+
+Execute below to deploy a CNI (in this case Calico)
+
+> Do this on `controller`
+
+kubectl create -f https://projectcalico.docs.tigera.io/manifests/tigera-operator.yaml
+kubectl create -f https://projectcalico.docs.tigera.io/manifests/custom-resources.yaml
+
+
+
+### Add the worker nodes
+
+Run the following on the `workers` (substituting the values as per the output of your kubeadm init command earlier)
+
+sudo kubeadm join 10.140.0.10:6443 --token x3v16x.suyy6558bpwo01ch \
+    --discovery-token-ca-cert-hash sha256:62858dca9d2f0d08021e64ceeaf22fc9842de5a6ddf950cdb8d4f2d88b191449
+
+# if you can't remember what the token is you can generate a new one on the CONTROLLER node
+sudo kubeadm token create --print-join-command
+
+
+### Verify Cluster Status
+
+Once the cluster has been created and the worker nodes joined to the cluster it should look a lot like this:
+
+user@controller:~$ kubectl get node -o wide
+
+
+### View Running Pods
+
+user@controller:~$ kubectl get pod -A
+
+### Basic Testing
+
+# create a pod called nginx
+user@controller:~$ kubectl run nginx --image=nginx --port=80
+# note the IP address
+kubectl get pods -o wide
+
+# run a testing pod - you should see the nginx webpage displayed like below Note: Your tester pod will automatically be deleted once the curl command completes
+kubectl run tester --rm --restart=Never -it --image=nginx -- curl <nginx-pod-ip>
+

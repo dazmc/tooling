@@ -1,0 +1,115 @@
+# Google Cloud Platform - IaaS k8s Cluster
+
+
+This setup is based around GCP and the useful online tutorial "Kubernetes - The Easy Way". Login with SDK and set defaults.
+
+> It's probably easiest to do this with the Google Cloud Console or GCP Cloud Shell
+
+gcloud config configurations list
+gcloud init
+gcloud auth login
+gcloud config set project kubernetes    (optional)
+gcloud config set compute/region us-east1
+gcloud config set compute/zone us-east1-c
+
+## Google Cloud Platform - IaaS k8s Cluster - Networking
+
+Setup some networking. *Please note (optional/insecure) NodePorts range*
+
+gcloud compute networks create kubernetes-the-easy-way --subnet-mode custom
+
+gcloud compute networks subnets create kubernetes-easy  \
+ --network kubernetes-the-easy-way --range 10.140.0.0/24
+
+gcloud compute firewall-rules create k8s-allow-internal --allow tcp,udp,icmp,ipip \
+  --network kubernetes-the-easy-way --source-ranges 10.140.0.0/24
+
+gcloud compute firewall-rules create k8s-allow-external --allow tcp:22,tcp:6443,icmp \
+ --network kubernetes-the-easy-way --source-ranges 0.0.0.0/0
+
+gcloud compute firewall-rules create k8s-allow-external2 --allow tcp:30000-32768 \
+ --network kubernetes-the-easy-way --source-ranges 0.0.0.0/0
+
+gcloud compute firewall-rules list --filter="network:kubernetes-the-easy-way"
+
+
+## GCP - Find a Image
+
+> **RHEL7:** gcloud compute images list --filter=rhel-7
+
+> **RHEL8:** gcloud compute images list --filter=rhel-8
+
+> **Ubuntu:** gcloud compute images list --filter=ubuntu
+
+> **Ubuntu-2110:** gcloud compute images list --filter=ubuntu-2110
+
+
+## Google Cloud Platform - IaaS k8s Cluster - Controller
+
+Create a controller node
+
+gcloud compute instances create controller \
+    --async \
+    --boot-disk-size=10GB \
+    --boot-disk-type=pd-balanced \
+    --can-ip-forward \
+    --image-family ubuntu-2110 \
+    --image-project ubuntu-os-cloud \
+    --machine-type e2-medium \
+    --private-network-ip 10.140.0.10 \
+    --scopes compute-rw,storage-ro,service-management,service-control,logging-write,monitoring \
+    --subnet kubernetes-easy \
+    --tags kubernetes-the-easy-way,controller
+
+## track what is happening by using the URL output from the above command
+gcloud compute operations describe  https://www.googleapis.com/compute/v1/projects/playground-s-11-e0b8cbfe/zones/us-east1-c/operations/operation-.........,.
+
+
+## Google Cloud Platform - IaaS k8s Cluster - Workers
+
+Create three worker nodes
+
+for i in 0 1 2; do
+    gcloud compute instances create worker-${i} \
+      --async \
+      --boot-disk-size=10GB \
+      --boot-disk-type=pd-balanced \
+      --can-ip-forward \
+      --image-family ubuntu-2110 \
+      --image-project ubuntu-os-cloud \
+      --machine-type e2-medium \
+      --private-network-ip 10.140.0.2${i} \
+      --scopes compute-rw,storage-ro,service-management,service-control,logging-write,monitoring \
+      --subnet kubernetes-easy \
+      --tags kubernetes-the-easy-way,worker
+  done
+
+## track what is happening by using the URL output from the above command - there will be 3
+gcloud compute operations describe  https://www.googleapis.com/compute/v1/projects/playground-s-11-e0b8cbfe/zones/us-east1-c/operations/operation-.........,.
+
+
+## Google Cloud Platform - IaaS k8s Cluster - Verify
+
+Verify the four VMs have been successfully created.
+
+gcloud compute instances list
+
+## Connecting to the instances
+
+SSH to the controller compute instances from the cloud console:
+
+gcloud compute ssh controller
+
+SSH to the worker compute instances (worker-0 to worker-2):
+
+gcloud compute ssh worker-x
+
+## Start / Stop All Nodes
+
+From the GCP console, if you want to stop or start **all** nodes in the project you can use:
+
+gcloud compute instances stop $(gcloud compute instances list --uri)
+
+or
+
+gcloud compute instances start $(gcloud compute instances list --uri)
