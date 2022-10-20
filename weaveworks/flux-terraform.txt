@@ -1,0 +1,6 @@
+https://www.cncf.io/blog/2022/09/30/how-to-gitops-your-terraform/
+https://youtu.be/8xhEPPA6XUs
+https://github.com/priyanka-ravi/flux-vault-demo
+https://weaveworks.github.io/tf-controller/getting_started/#installation
+
+

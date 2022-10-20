@@ -1,0 +1,2 @@
+#create aws secret in aws!!!
+aws secretsmanager create-secret --name aws-creds --secret-string '{"AWS_ACCESS_KEY_ID":"XXX","AWS_SECRET_ACCESS_KEY":"XXX"}' --region us-east-1

@@ -1,0 +1,5 @@
+#https://weaveworks.github.io/tf-controller/
+#tfctl binary
+wget https://github.com/weaveworks/tf-controller/releases/download/v0.13.0-rc.2/tfctl_Linux_amd64.tar.gz
+tar zxf tfctl_Linux_amd64.tar.gz
+sudo mv tfctl /usr/local/bin
