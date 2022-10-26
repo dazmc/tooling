@@ -1,0 +1,8 @@
+# aks
+az aks get-versions --location eastus | grep Version
+# create a cluster - can also use BYO CNI
+az aks create --resource-group 1-9b48f229-playground-sandbox --name flux --ssh-key-value ~/.ssh/id_rsa.pub --kubernetes-version 1.24.3 #--networ
+k-plugin none
+
+az aks list
+az aks get-credentials --name flux --resource-group 1-9b48f229-playground-sandbox
