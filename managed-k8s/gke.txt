@@ -1,5 +1,7 @@
-export USE_GKE_GCLOUD_AUTH_PLUGIN=False >> ~/.bashrc
+#export USE_GKE_GCLOUD_AUTH_PLUGIN=False >> ~/.bashrc
+gcloud components install gke-gcloud-auth-plugin
 gcloud components update
+echo export USE_GKE_GCLOUD_AUTH_PLUGIN=True >> ~/.bashrc
 source ~/.bashrc
 
 
@@ -44,16 +46,23 @@ gcloud container clusters get-credentials test-alpha
 
 gcloud container clusters create test
 
+gcloud container clusters create high-mem-pool \
+                --machine-type=custom-2-12288
+
 gcloud container clusters create "test" --zone "us-east1-c"  --cluster-version "1.23.5-gke.200" --release-channel "rapid" --machine-type "e2-med
 ium"  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https:
 //www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.reado
 nly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --en
 able-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver
 
-gcloud container clusters create "flux" --zone "us-central1-a"  --cluster-version "1.25.0-gke.1100" --release-channel "rapid" --machine-type "e2
+gcloud container clusters create "flux" --zone "us-central1-a"  --cluster-version "1.25.2-gke.1700" --release-channel "rapid" --machine-type "e2
 -medium"  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","ht
 tps://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.r
 eadonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM
 --enable-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver
+
+gcloud container clusters create "paralus" --zone "us-central1-c"  --cluster-version "1.25.2-gke.1700" --release-channel "rapid" --machine-type=custom-4-8192  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "2" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver
+
+gcloud container clusters create "production" --zone "us-central1-c"  --cluster-version "1.25.2-gke.1700" --release-channel "rapid" --machine-type=e2-standard-2  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "1" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver
 
 sudo apt install tree

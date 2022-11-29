@@ -10,7 +10,9 @@ gcloud components install [COMPONENT-ID]
 gcloud components install kubectl
 # https://cloud.google.com/blog/products/containers-kubernetes/kubectl-auth-changes-in-gke
 gcloud components install gke-gcloud-auth-plugin
-export USE_GKE_GCLOUD_AUTH_PLUGIN=False >> ~/.bashrc
+#export USE_GKE_GCLOUD_AUTH_PLUGIN=False >> ~/.bashrc
+gcloud components install gke-gcloud-auth-plugin
+echo export USE_GKE_GCLOUD_AUTH_PLUGIN=True >> ~/.bashrc
 gcloud components update
 source ~/.bashrc
 
@@ -25,6 +27,8 @@ gcloud projects list
 gcloud config get-value compute/zone 
 gcloud compute zones list 
 
+gcloud compute machine-types list
+
 gcloud auth list 
 gcloud auth login
 gcloud config set account cloud_user_p_f65a90ce@linuxacademygclabs.com 
@@ -34,6 +38,7 @@ gcloud services list –available
 
 
 gcloud services enable container.googleapis.com 
+
 
 # RAPID, change channel to REGULAR or STABLE 
 gcloud container get-server-config --flatten="channels" --filter="channels.channel=RAPID" \
@@ -55,6 +60,10 @@ gcloud container clusters create test-alpha --enable-kubernetes-alpha --no-enabl
 gcloud container clusters get-credentials test-alpha 
 
 gcloud container clusters create test 
+
+# custom cpu and memory
+gcloud container clusters create high-mem-pool \
+                --machine-type=custom-2-12288
 
 gcloud container clusters create "test" --zone "us-east1-c"  --cluster-version "1.23.5-gke.200" --release-channel "rapid" --machine-type "e2-medium"  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver  
 

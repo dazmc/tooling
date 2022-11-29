@@ -1,0 +1,22 @@
+# paralus:
+#     initialize:
+#         partner: "example"
+#         partnerDesc: "Partner description"
+#         partnerHost: "example.com"
+#         org: "exampleorg"
+#         orgDesc: "Org description"
+#         adminEmail: "foo@example.com"
+#         adminFirstName: "Foo"
+#         adminLastName: "Bar"
+ deploy:
+#     kratos:
+#         smtpConnectionURI: "smtps://foo:bar@my-mailserver:1234/"
+#     elasticsearch:
+#         address: "my-es-host:9200”
+     postgresql:
+         address: "my-pgsql-host:5432"
+         username: "user"
+         password: "pa$$word"
+         database: "dbname"
+ fqdn:
+     domain: paralus.duckdns.org
