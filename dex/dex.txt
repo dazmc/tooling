@@ -1,0 +1,18 @@
+https://github.com/onkarbhat/secure-pacman/blob/main/README.md
+https://www.youtube.com/watch?v=ax0gJPKgsdU
+
+using ~/labs/secure-pacman - to link openldap and dex and oauth2proxy and pacman app
+
+helm repo add dex https://charts.dexidp.io
+helm repo update dex
+cd ../dex
+
+edit dex-values.yaml and put the password for openldap admin - adminpassword
+
+kubectl create ns dex
+helm install dex dex/dex -n dex -f dex-values.yaml
+
+helm status dex -n dex
+watch kubectl get pod -n dex
+
+

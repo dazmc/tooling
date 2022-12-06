@@ -1,0 +1,24 @@
+https://github.com/onkarbhat/secure-pacman/blob/main/README.md
+https://www.youtube.com/watch?v=ax0gJPKgsdU
+
+cd ~/labs/
+git clone https://github.com/onkarbhat/secure-pacman.git
+cd secure-pacman/
+kubectl create ns openldap
+kubectl create secret generic openldap --from-literal=adminpassword=adminpassword --from-literal=users=productionadmin,productionbasic,productionconfig --from-literal=passwords=testpasswordadmin,testpasswordbasic,testpasswordconfig -n openldap
+kubectl get secret -n openldap
+kubectl get secret -n openldap openldap -o yaml
+kubectl get secret -n openldap openldap -o jsonpath='{.data.users}'| base64 -d
+kubectl get secret -n openldap openldap -o jsonpath='{.data.passwords}'| base64 -d
+cd openldap/
+more openldap-deployment.yaml
+kubectl apply -f openldap-deployment.yaml -n openldap
+kubectl get pods -n openldap
+kubectl apply -f openldap-service.yaml -n openldap
+kubectl port-forward service/openldap -n openldap 1389:1389
+sudo apt install ldap-utils
+ldapadd -x -H ldap://127.0.0.1:1389 -D "cn=admin,dc=example,dc=org" -w adminpassword -f pacman-admin-group.ldif
+ldapsearch -x -H ldap://127.0.0.1:1389 -b dc=example,dc=org -D 'cn=admin,dc=example,dc=org' -w adminpassword
+helm repo add dex https://charts.dexidp.io
+helm repo update dex
+cd ../dex

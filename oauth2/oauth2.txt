@@ -1,0 +1,13 @@
+using ~/labs/secure-pacman 
+
+cd ../oauth2-proxy
+kubectl create ns pacman
+kubectl create -f oauth2-proxy-deployment.yaml -n pacman
+kubectl create -f oauth2-proxy-service.yaml -n pacman
+
+kubectl port-forward service/oauth2-proxy -n pacman 4180:4180
+
+host file =
+
+127.0.0.1 dex.dex
+127.0.0.1 oauth2-proxy.pacman
