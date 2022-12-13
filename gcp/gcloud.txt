@@ -69,4 +69,14 @@ gcloud container clusters create "test" --zone "us-east1-c"  --cluster-version "
 
 gcloud container clusters create "flux" --zone "us-central1-a"  --cluster-version "1.25.0-gke.1100" --release-channel "rapid" --machine-type "e2-medium"  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver
 
+gcloud container clusters create "krateo" --zone "us-central1-a"  --cluster-version "1.25.3-gke.800" --release-channel "rapid" --machine-type "e2-standard-2"  --disk-size "100" --scopes  "https://www.googleapis.com/auth/devstorage.read_only","https://www.googleapis.com/auth/logging.write","https://www.googleapis.com/auth/monitoring","https://www.googleapis.com/auth/servicecontrol","https://www.googleapis.com/auth/service.management.readonly","https://www.googleapis.com/auth/trace.append" --max-pods-per-node "110" --num-nodes "3" --logging=SYSTEM,WORKLOAD --monitoring=SYSTEM --enable-ip-alias --default-max-pods-per-node "110"  --addons HorizontalPodAutoscaling,HttpLoadBalancing,GcePersistentDiskCsiDriver
+
 sudo apt install tree 
+
+
+#ingress
+https://kubernetes.github.io/ingress-nginx/deploy/#gce-gke
+kubectl create clusterrolebinding cluster-admin-binding \
+  --clusterrole cluster-admin \
+  --user $(gcloud config get-value account)
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.5.1/deploy/static/provider/cloud/deploy.yaml
